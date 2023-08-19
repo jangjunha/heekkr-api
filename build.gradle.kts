@@ -16,18 +16,23 @@ java {
 
 repositories {
 	mavenCentral()
+	maven {
+		url = uri("https://asia-northeast3-maven.pkg.dev/heekkr/heekkr-maven/")
+	}
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-webflux")
-	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
+	implementation("org.springframework.boot:spring-boot-starter")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+	implementation("io.grpc:grpc-api:1.56.1")
+	implementation("io.grpc:grpc-kotlin-stub:1.3.0")
+	implementation("io.grpc:grpc-netty:1.56.1")
+	implementation("com.google.protobuf:protobuf-kotlin:3.23.4")
+	implementation("kr.heek:proto:1.1.0")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("io.projectreactor:reactor-test")
 }
 
 tasks.withType<KotlinCompile> {

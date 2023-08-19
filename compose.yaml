@@ -1,1 +1,11 @@
 services:
+  splib:
+    image: asia-northeast3-docker.pkg.dev/heekkr/heekkr-docker/heekkr-resolvers
+    command: python run.py splib
+    ports:
+      - 9091:50051
+  gdlib:
+    image: asia-northeast3-docker.pkg.dev/heekkr/heekkr-docker/heekkr-resolvers
+    command: python run.py gdlib
+    ports:
+      - 9092:50051

@@ -1,0 +1,8 @@
+grpc:
+  server:
+    port: 8080
+heekkr:
+  resolver:
+    targets:
+      splib: localhost:9091
+      gdlib: localhost:9092
