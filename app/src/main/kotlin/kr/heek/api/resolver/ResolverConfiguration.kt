@@ -1,6 +1,8 @@
 package kr.heek.api.resolver
 
+import com.google.auth.oauth2.GoogleCredentials
 import com.google.auth.oauth2.IdTokenCredentials
+import com.google.auth.oauth2.IdTokenProvider
 import io.grpc.CompositeChannelCredentials
 import io.grpc.InsecureChannelCredentials
 import io.grpc.TlsChannelCredentials
@@ -30,6 +32,7 @@ class ResolverConfiguration
                     MoreCallCredentials.from(
                         IdTokenCredentials
                             .newBuilder()
+                            .setIdTokenProvider(GoogleCredentials.getApplicationDefault() as IdTokenProvider)
                             .setTargetAudience("https://${config.target}/")
                             .build()
                     )
