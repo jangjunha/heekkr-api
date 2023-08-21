@@ -4,4 +4,4 @@ grpc:
 heekkr:
   resolver:
     targets:
-      simple: localhost:50051
+      simple: resolver-simple-7i77a4bd4q-du.a.run.app:443
