@@ -3,8 +3,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
 	id("org.springframework.boot") version "3.1.2"
 	id("io.spring.dependency-management") version "1.1.2"
-	kotlin("jvm") version "1.8.22"
-	kotlin("plugin.spring") version "1.8.22"
+	kotlin("jvm") version kotlinVersion
+	kotlin("plugin.spring") version kotlinVersion
 }
 
 group = "kr.heek"
@@ -24,20 +24,22 @@ repositories {
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter")
 	implementation("org.springframework.boot:spring-boot-starter-cache")
-	implementation("com.linecorp.armeria:armeria-spring-boot3-starter:1.24.3")
-	implementation("com.linecorp.armeria:armeria-grpc-kotlin:1.24.3")
-	implementation("com.linecorp.armeria:armeria-grpc:1.24.3")
-	implementation("com.linecorp.armeria:armeria-grpc-protocol:1.24.3")
+	implementation("com.linecorp.armeria:armeria-spring-boot3-starter:$armeriaVersion")
+	implementation("com.linecorp.armeria:armeria-grpc-kotlin:$armeriaVersion")
+	implementation("com.linecorp.armeria:armeria-grpc:$armeriaVersion")
+	implementation("com.linecorp.armeria:armeria-grpc-protocol:$armeriaVersion")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
-	implementation("org.apache.lucene:lucene-core:9.7.0")
+	implementation("org.apache.lucene:lucene-core:$luceneVersion")
 	implementation("org.apache.lucene:lucene-analyzers-nori:8.11.2")
-	implementation("org.apache.lucene:lucene-queryparser:9.7.0")
-	implementation("org.apache.lucene:lucene-highlighter:9.7.0")
-	implementation("io.grpc:grpc-api:1.56.1")
-	implementation("io.grpc:grpc-kotlin-stub:1.3.0")
-	implementation("io.grpc:grpc-netty:1.56.1")
-	implementation("com.google.protobuf:protobuf-kotlin:3.23.4")
+	implementation("org.apache.lucene:lucene-queryparser:$luceneVersion")
+	implementation("org.apache.lucene:lucene-highlighter:$luceneVersion")
+	implementation("io.grpc:grpc-api:$grpcVersion")
+	implementation("io.grpc:grpc-auth:$grpcVersion")
+	implementation("io.grpc:grpc-kotlin-stub:$grpcKotlinVersion")
+	implementation("io.grpc:grpc-netty:$grpcVersion")
+	implementation("com.google.protobuf:protobuf-kotlin:$protobufVersion")
+	implementation("com.google.auth:google-auth-library-oauth2-http:1.19.0")
 	implementation("kr.heek:proto:1.3.0")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	developmentOnly("org.springframework.boot:spring-boot-docker-compose")

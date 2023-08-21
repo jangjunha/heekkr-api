@@ -1,0 +1,7 @@
+grpc:
+  server:
+    port: 8080
+heekkr:
+  resolvers:
+    simple:
+      target: localhost:50051
