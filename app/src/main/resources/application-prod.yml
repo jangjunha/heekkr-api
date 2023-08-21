@@ -6,4 +6,3 @@ heekkr:
     simple:
       target: resolver-simple-7i77a4bd4q-du.a.run.app:443
       auth: google
-

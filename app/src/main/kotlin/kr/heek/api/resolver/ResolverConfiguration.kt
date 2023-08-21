@@ -1,6 +1,6 @@
 package kr.heek.api.resolver
 
-import com.google.auth.oauth2.GoogleCredentials
+import com.google.auth.oauth2.IdTokenCredentials
 import io.grpc.CompositeChannelCredentials
 import io.grpc.InsecureChannelCredentials
 import io.grpc.TlsChannelCredentials
@@ -27,7 +27,12 @@ class ResolverConfiguration
             ResolverProperties.Auth.GOOGLE ->
                 CompositeChannelCredentials.create(
                     TlsChannelCredentials.create(),
-                    MoreCallCredentials.from(GoogleCredentials.getApplicationDefault())
+                    MoreCallCredentials.from(
+                        IdTokenCredentials
+                            .newBuilder()
+                            .setTargetAudience("https://${config.target}/")
+                            .build()
+                    )
                 )
         }
         ResolverCoroutineStub(
