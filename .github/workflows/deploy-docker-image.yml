@@ -148,6 +148,7 @@ jobs:
         with:
           service: api
           image: "${{ env.IMAGE }}:main"
+          region: asia-northeast3
 
       - name: Endpoint
         run: 'curl "${{ steps.deploy.outputs.url }}"'
