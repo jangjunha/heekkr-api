@@ -7,8 +7,8 @@ import io.grpc.CompositeChannelCredentials
 import io.grpc.InsecureChannelCredentials
 import io.grpc.TlsChannelCredentials
 import io.grpc.auth.MoreCallCredentials
-import io.grpc.netty.NettyChannelBuilder
-import io.netty.channel.ChannelOption
+import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder
+import io.grpc.netty.shaded.io.netty.channel.ChannelOption
 import kr.heek.resolver.ResolverGrpcKt.ResolverCoroutineStub
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.properties.EnableConfigurationProperties
