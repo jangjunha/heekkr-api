@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import java.util.concurrent.TimeUnit
 
 @Configuration
 @EnableConfigurationProperties(CorsProperties::class)
@@ -40,6 +41,7 @@ class ServerConfiguration
         }
         it.decorator(LoggingService.newDecorator())
         it.accessLogWriter(AccessLogWriter.combined(), false)
+        it.requestTimeoutMillis(TimeUnit.SECONDS.toMillis(30))
         it.service(
             GrpcService.builder()
                 .addService(apiServiceImpl)
