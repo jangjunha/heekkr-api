@@ -6,6 +6,7 @@ plugins {
 	id("com.google.cloud.tools.jib") version "3.3.2"
 	kotlin("jvm") version kotlinVersion
 	kotlin("plugin.spring") version kotlinVersion
+	kotlin("plugin.serialization") version kotlinVersion
 }
 
 buildscript {
@@ -48,6 +49,10 @@ dependencies {
 	implementation("io.grpc:grpc-netty-shaded:$grpcVersion")
 	implementation("com.google.protobuf:protobuf-kotlin:$protobufVersion")
 	implementation("com.google.auth:google-auth-library-oauth2-http:1.19.0")
+	implementation("io.ktor:ktor-client-core:$ktorVersion")
+	implementation("io.ktor:ktor-client-cio:$ktorVersion")
+	implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+	implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
 	implementation("kr.heek:proto:1.3.0")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")

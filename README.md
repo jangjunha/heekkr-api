@@ -12,5 +12,5 @@ $ docker-compose up -d
 ## Run
 
 ```console
-$ CORS_ORIGINS_0="http://localhost:5173" ./gradlew :app:bootRun
+$ CORS_ORIGINS_0="http://localhost:5173" NL_API_KEY="<API-KEY>" ./gradlew :app:bootRun
 ```

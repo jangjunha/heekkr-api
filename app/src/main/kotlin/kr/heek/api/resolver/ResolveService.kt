@@ -4,9 +4,11 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
-import kr.heek.Book
 import kr.heek.Library
 import kr.heek.api.SearchResponse
+import kr.heek.api.book.Book
+import kr.heek.api.book.BookService
+import kr.heek.api.book.RequestContext
 import kr.heek.api.searchEntity
 import kr.heek.api.searchResponse
 import kr.heek.resolver.ResolverGrpcKt.ResolverCoroutineStub
@@ -36,6 +38,7 @@ import org.springframework.stereotype.Service
 @Service
 class ResolveService
 @Autowired constructor(
+    private val bookService: BookService,
     private val resolvers: Map<String, ResolverCoroutineStub>,
 ) {
 
@@ -65,98 +68,61 @@ class ResolveService
                     this
             }
 
-    fun search(keyword: String, libraryIds: List<String>): Flow<SearchResponse> {
+    private suspend fun _search(keyword: String, libraryIds: List<String>): Flow<SearchResponse> {
+        val context = RequestContext(bookService::resolve)
+
+        val analyzer = KoreanAnalyzer()
+        val query = buildQuery(keyword, analyzer)
+
+        val libraries = findLibraries()
+
         return resolvers
             .map { (key, resolver) ->
-                flow {
-                    val libraries = findLibraries()
-                    val targetLibraryIds = libraries
-                        .filter { (resolver, _) -> resolver == key }
-                        .filter { (_, library) -> libraryIds.contains(library.id) }
-                        .map { it.second.id }
-                    if (targetLibraryIds.isNotEmpty()) {
-                        emit(
-                            resolver.search(searchRequest {
-                                this.term = keyword
-                                this.libraryIds.addAll(targetLibraryIds)
-                            })
-                        )
-                    }
-                }
+                val targetLibraryIds = libraries
+                    .filter { (resolver, _) -> resolver == key }
+                    .filter { (_, library) -> libraryIds.contains(library.id) }
+                    .map { it.second.id }
+                if (targetLibraryIds.isNotEmpty()) {
+                    resolver.search(searchRequest {
+                        this.term = keyword
+                        this.libraryIds.addAll(targetLibraryIds)
+                    })
+                } else emptyFlow()
             }
             .asFlow()
             .flatMapMerge { it }
-            .flatMapMerge { it }
             .map { response ->
-                val analyzer = KoreanAnalyzer()
-                val query = buildQuery(keyword, analyzer)
-                searchResponse {
-                    entities.addAll(
-                        response.entitiesList.map { entity ->
-                            searchEntity {
-                                book = entity.book
-                                holdingSummaries.addAll(entity.holdingSummariesList)
-                                url = entity.url
-                                score = calculateScore(buildDocument(entity.book, 0), query)
-                            }
+                val entities = response.entitiesList
+                    .map {
+                        it to Book(
+                            title = it.book.title,
+                            author = it.book.author,
+                            publisher = it.book.publisher,
+                            publishDate = it.book.publishDate,
+                            isbn = it.book.isbn,
+                        )
+                    }
+                    .map { (entity, book) ->
+                        entity to (context.request(book.isbn) ?: book)
+                    }
+                    .map { (entity, book) ->
+                        searchEntity {
+                            this.book = book.toAPI()
+                            this.holdingSummaries.addAll(entity.holdingSummariesList)
+                            this.url = entity.url
+                            this.score = calculateScore(buildDocument(book), query)
                         }
-                    )
+                    }
+                searchResponse {
+                    this.entities.addAll(entities)
                 }
             }
-//            .map { it ->
-//                val analyzer = KoreanAnalyzer()
-//                val directory = buildDirectory(
-//                    it.entitiesList.map { it.book },
-//                    analyzer,
-//                ) { b, i -> buildDocument(b, i) }
-//
-//                val query = buildQuery(keyword, analyzer)
-//                val highlighter = Highlighter(SimpleHTMLFormatter(), QueryScorer(query))
-//
-//                val indexReader = DirectoryReader.open(directory)
-//                val indexSearcher = IndexSearcher(indexReader)
-//                val docs = indexSearcher.search(
-//                    query,
-//                    indexReader.numDocs(),
-//                ).scoreDocs
-//                val storedFields = indexSearcher.storedFields()
-//                searchResponse {
-//                    this.entities.addAll(
-//                        docs.map { scoreDoc ->
-//                            val doc = storedFields.document(scoreDoc.doc)
-//                            val index = doc.getField("_index").numericValue().toInt()
-//                            val entity = it.entitiesList[index]
-//                            searchEntity {
-//                                this.book = book {
-//                                    entity.book.isbn?.let {
-//                                        isbn = it
-//                                    }
-//                                    entity.book.title?.let {
-//                                        title = highlighter.getBestFragment(analyzer, "title", it) ?: it
-//                                    }
-//                                    entity.book.description?.let {
-//                                        description = highlighter.getBestFragment(analyzer, "description", it) ?: it
-//                                    }
-//                                    entity.book.author?.let {
-//                                        author = highlighter.getBestFragment(analyzer, "author", it) ?: it
-//                                    }
-//                                    entity.book.publisher?.let {
-//                                        publisher = highlighter.getBestFragment(analyzer, "publisher", it) ?: it
-//                                    }
-//                                    entity.book.publishDate?.let {
-//                                        publishDate = it
-//                                    }
-//                                }
-//                                this.holdingSummaries.addAll(entity.holdingSummariesList)
-//                                this.url = entity.url
-//                                this.score = scoreDoc.score.toDouble()
-//                            }
-//                        })
-//                    indexReader.close()
-//                    directory.close()
-//                }
-//            }
     }
+
+    fun search(keyword: String, libraryIds: List<String>): Flow<SearchResponse> = flow {
+        emit(_search(keyword, libraryIds))
+    }.flatMapMerge { it }
+
 
     companion object {
         fun buildQuery(keyword: String, analyzer: Analyzer): Query {
@@ -181,7 +147,11 @@ class ResolveService
             return explanation.value.toDouble()
         }
 
-        fun <T> buildDirectory(entities: List<T>, analyzer: Analyzer, transform: (T, Int) -> Document): Directory {
+        private fun <T> buildDirectory(
+            entities: List<T>,
+            analyzer: Analyzer,
+            transform: (T, Int) -> Document
+        ): Directory {
             val directory = ByteBuffersDirectory()
             val indexWriter = IndexWriter(
                 directory,
@@ -195,9 +165,8 @@ class ResolveService
             return directory
         }
 
-        private fun buildDocument(book: Book, index: Int): Document {
+        private fun buildDocument(book: Book): Document {
             val doc = Document()
-//            doc.add(StoredField("_index", index))
             doc.add(
                 Field(
                     "isbn",
@@ -209,13 +178,6 @@ class ResolveService
                 Field(
                     "title",
                     book.title,
-                    TextField.TYPE_STORED,
-                )
-            )
-            doc.add(
-                Field(
-                    "description",
-                    book.description,
                     TextField.TYPE_STORED,
                 )
             )
