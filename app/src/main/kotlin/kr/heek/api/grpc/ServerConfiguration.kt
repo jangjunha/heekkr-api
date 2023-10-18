@@ -30,7 +30,11 @@ class ServerConfiguration
                 CorsService
                     .builder(corsProperties.origins)
                     .allowRequestMethods(HttpMethod.POST)
-                    .allowRequestHeaders(HttpHeaderNames.CONTENT_TYPE, HttpHeaderNames.of("X-GRPC-WEB"))
+                    .allowRequestHeaders(
+                        HttpHeaderNames.CONTENT_TYPE,
+                        HttpHeaderNames.of("X-GRPC-WEB"),
+                        HttpHeaderNames.of("X-USER-AGENT"),
+                    )
                     .exposeHeaders(
                         GrpcHeaderNames.GRPC_STATUS,
                         GrpcHeaderNames.GRPC_MESSAGE,
