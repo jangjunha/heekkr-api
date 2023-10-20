@@ -6,3 +6,6 @@ heekkr:
     simple:
       target: resolver-simple-7i77a4bd4q-du.a.run.app
       auth: google
+    json-rs:
+      target: resolver-json-rs-7i77a4bd4q-du.a.run.app
+      auth: google
