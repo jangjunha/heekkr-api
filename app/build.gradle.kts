@@ -7,6 +7,7 @@ plugins {
 	kotlin("jvm") version kotlinVersion
 	kotlin("plugin.spring") version kotlinVersion
 	kotlin("plugin.serialization") version kotlinVersion
+	id("io.sentry.jvm.gradle") version "3.14.0"
 }
 
 buildscript {
@@ -81,4 +82,12 @@ jib {
 			implementation = "com.google.cloud.tools.jib.gradle.extension.springboot.JibSpringBootExtension"
 		}
 	}
+}
+
+sentry {
+	includeSourceContext = true
+
+	org = "junha-jang"
+	projectName = "heekkr-api"
+	authToken = System.getenv("SENTRY_AUTH_TOKEN")
 }

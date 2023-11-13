@@ -9,3 +9,6 @@ heekkr:
     json-rs:
       target: resolver-json-rs-7i77a4bd4q-du.a.run.app
       auth: google
+sentry:
+  dsn: https://1a3cfa8ab4099a93107a2814d361925f@o160606.ingest.sentry.io/4506218628579328
+  sentry.traces-sample-rate: 1.0
